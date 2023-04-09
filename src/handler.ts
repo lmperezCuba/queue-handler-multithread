@@ -1,24 +1,54 @@
-// Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: MIT-0
-// //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this
-// software and associated documentation files (the "Software"), to deal in the Software
-// without restriction, including without limitation the rights to use, copy, modify,
-// merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so.
-// //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-// PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 import { SQSHandler } from 'aws-lambda';
 
+/**
+ * Recieve a set of events and execute it them concurrently.
+ * 
+ * @param event trigger SQS event
+ * @returns result of processing
+ */
 export const logEvent: SQSHandler = async (event) => {
     console.log(`Received event: ${JSON.stringify(event)}`);
-    console.log(`Number of records received: ${event.Records.length}`); // strongly typed access to event records collection
-
+    console.log(`Number of records received: ${event.Records?.length}`); // strongly typed access to event records collection
+    if (event.Records?.length > 0) {
+      //  console.log('This will be executed concurrently using Promise.allSettled(...)');
+        const start: number = (new Date()).getTime();
+        const messages = event.Records;
+        const actions = messages.map(() => execProccess(2090));
+        const results = await Promise.allSettled(actions);
+        const groupByStatus = groupBy(['status']);
+        const { rejected, fulfilled } = groupByStatus(results);
+        // Manage previous result
+        // console.log(`Output: `);
+        
+        console.log(`Function done - Total time: ${((new Date()).getTime() - start)}`);
+    }
     return;
 };
+
+/**
+ * REPLACE THIS CODE WITH BUSINESS LOGIS. THIS IS ONLY FOR TESTING PURPOSE.
+ * 
+ * @param ms miliseconsds to sleep the logic
+ * @returns a resolution message
+ */
+function execProccess(ms = 0) {
+    return new Promise(resolve => {
+        setTimeout(() => {           // @ts-ignore
+            resolve(ms);
+        }, ms);
+    });
+}
+
+/**
+ * Group array of objects by given keys
+ * @param keys keys to be grouped by
+ * @param array objects to be grouped
+ * @returns an object with objects in `array` grouped by `keys`
+ * @see <https://gist.github.com/mikaello/06a76bca33e5d79cdd80c162d7774e9c>
+ */
+const groupBy = <T>(keys: (keyof T)[]) => (array: T[]): Record<string, T[]> =>
+    array.reduce((objectsByKeyValue, obj) => {
+        const value = keys.map((key) => obj[key]).join('-');
+        objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
+        return objectsByKeyValue;
+    }, {} as Record<string, T[]>);
