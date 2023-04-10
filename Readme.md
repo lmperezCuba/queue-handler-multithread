@@ -40,7 +40,7 @@ Important: this application uses various AWS services and there are costs associ
     serverless deploy --verbose
     ```
 
-    The above command will deploy resources to `us-east-1` region by default. You can override the target region with `--region <region>` CLI option, e.g.
+    The above command will deploy resources to `eu-west-1` region by default. You can override the target region with `--region <region>` CLI option, e.g.
 
     ``` sh
     serverless deploy --verbose --region us-west-2
