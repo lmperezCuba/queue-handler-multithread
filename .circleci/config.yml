@@ -22,10 +22,6 @@ jobs:
   build:
     executor: 'default'
     steps:
-      - aws-cli/setup:
-          aws-access-key-id: ASIAY6QHQGQVJCC2J7IQ
-          aws-secret-access-key: JhAp0tWbji0Fh84qbZ16krjTVvYNYb66s/Y77OF0
-          # aws-region: eu-west-2
       - checkout
       - run: node --version
 
