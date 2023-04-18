@@ -5,5 +5,7 @@ jspm_packages
 # Serverless directories
 .serverless
 
-# custom
-app.js
+# jest
+app.js!jest.config.js
+*.d.ts
+/coverage
