@@ -26,7 +26,7 @@ jobs:
       - run: node --version
       - run:
           name: Run tests with code coverage
-          command: npm run coverage
+          command: npm run test:ci
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
